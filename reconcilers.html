@@ -1,0 +1,104 @@
+<html>
+    <script>
+        var oldtodo=[]
+        var newtodo=[]
+
+        function addTodo(old,newt){
+            var addtodo=[]
+            for(let i=0;i<newt.length;i++){
+                var done=false;
+                for(let j=0;j<old.length;j++){
+                    if(newt[i].id==old[j].id){
+                        done=true;
+                        break;
+                    }
+                }
+                if(!done)addtodo.push(newt[i]);
+            }
+            return addtodo;
+        }
+
+        function deleteTodo(old,newt){
+            var deletetodo=[]
+            for(let i=0;i<old.length;i++){
+                var done=false;
+                for(let j=0;j<newt.length;j++){
+                    if(old[i].id==newt[j].id){
+                        done=true;
+                        break;
+                    }
+                }
+                if(!done)deletetodo.push(old[i]);
+            }
+            return deletetodo;
+        }
+
+        function updateTodo(old,newt){
+            var updatetodo=[]
+            for(let i=0;i<newt.length;i++){
+                for(let j=0;j<old.length;j++){
+                    if(newt[i].id==old[j].id){
+                        updatetodo.push(old[j])
+                        break;
+                    }
+                }
+            }
+            return updatetodo;
+        }
+
+        function createtodo(title,description,id){
+            const firstgrandchild=document.createElement("div")
+            firstgrandchild.innerHTML=title
+            const secondgrandchild=document.createElement("div")
+            secondgrandchild.innerHTML=description
+            const thirdgrandchild=document.createElement("button")
+            thirdgrandchild.innerText="mark as done"
+
+            const child=document.createElement("div")
+            child.id=id;
+            child.appendChild(firstgrandchild)
+            child.appendChild(secondgrandchild)
+            child.appendChild(thirdgrandchild)
+
+            return child;
+        }
+
+
+        async function updatingTodo(){
+            const response=await fetch("your server link");
+            newtodo = await response.json()
+            const parent=document.getElementById("container")
+            var addtodo=addTodo(oldtodo,newtodo);
+            var updatetodo=updateTodo(oldtodo,newtodo)
+            var deletetodo=deleteTodo(oldtodo,newtodo)
+            
+            for(let i=0;i<addtodo.length;i++){
+                parent.appendChild(createtodo(addtodo[i].title,addtodo[i].description,addtodo[i].id))
+            }
+
+            for(let i=0;i<deletetodo.length;i++){
+                const item=document.getElementById(deletetodo[i].id)
+                if(item)item.remove()
+            }
+
+            for(let i=0;i<updatetodo.length;i++){
+                var item=document.getElementById(updatetodo[i].id)
+                if(item){
+                item.children[0].innerHTML=updatetodo[i].title
+                item.children[1].innerHTML=updatetodo[i].description}
+            }
+
+            oldtodo=newtodo;
+
+        }
+
+        setInterval(function(){
+            updatingTodo()
+        },5000);
+    </script>
+
+    <body>
+        <div id="container"></div>
+    </body>
+
+</html>
